@@ -109,6 +109,22 @@ sudo reboot
 
 ## Client Installation
 
+### Python Client baremetal
+
+Install the environment and dependencies
+```
+cd ~/openrtist/python-client
+python -m virtualenv --python=python3.8 ./venv
+source venv/bin/activate
+pip install poetry
+poetry install
+```
+
+Run the application
+```
+./src/openrtist/sinfonia_wrapper.py
+```
+
 ### Python Client in Docker
 
 The docker image for the server component also includes the Python client which can be run on a non-Android machine. __The python client requires that a USB webcam is connected to the machine.__
