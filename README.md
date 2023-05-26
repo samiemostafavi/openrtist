@@ -125,9 +125,9 @@ Configure the parameters
 vim ./src/openrtist/config.py
 ```
 
-Run the application
+Run the client using the wrapper
 ```
-./src/openrtist/sinfonia_wrapper.py
+./src/openrtist/sinfonia_wrapper.py -c openrtist-demo.cmusatyalab.org:9099
 ```
 
 ### Python Client in Docker
