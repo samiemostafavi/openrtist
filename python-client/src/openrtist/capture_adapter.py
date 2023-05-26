@@ -3,7 +3,7 @@ from threading import Thread
 from time import sleep
 
 import cv2
-from gabriel_client.websocket_client import WebsocketClient
+from gabriel_client.measurement_client import MeasurementClient
 
 from . import config
 from .adapter import Adapter
@@ -113,4 +113,4 @@ def create_client(
         video_source=video_source,
         capture_device=capture_device,
     )
-    return WebsocketClient(host, port, adapter.producer_wrappers, adapter.consumer)
+    return MeasurementClient(host, port, adapter.producer_wrappers, adapter.consumer)
