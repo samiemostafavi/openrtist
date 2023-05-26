@@ -59,7 +59,7 @@ class Adapter:
             extras.style = self._style
             return extras
 
-        def consume_frame(frame, packed_extras):
+        def consume_frame(frame, packed_extras, measurements):
             extras = openrtist_pb2.Extras()
             packed_extras.Unpack(extras)
             if self._style == "?":
@@ -79,7 +79,7 @@ class Adapter:
                     self.style_image = cv2.cvtColor(self.style_image, cv2.COLOR_BGR2RGB)
                     logger.debug("got style image")
 
-            consume_frame_style(frame, extras.style, self.style_image)
+            consume_frame_style(frame, extras.style, self.style_image, measurements)
 
         self._opencv_adapter = OpencvAdapter(
             preprocess,

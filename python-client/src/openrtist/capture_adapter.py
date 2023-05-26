@@ -88,9 +88,9 @@ class CaptureAdapter:
             video_capture = WebcamVideoStream(src=video_source)
             video_capture.start()
 
-        def consume_frame_style(frame, style, style_image):
+        def consume_frame_style(frame, style, style_image, measurements):
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            consume_rgb_frame_style(rgb_frame, style, style_image)
+            consume_rgb_frame_style(rgb_frame, style, style_image, measurements)
 
         self.adapter = Adapter(
             self.preprocess, consume_frame_style, video_capture, start_style="?"

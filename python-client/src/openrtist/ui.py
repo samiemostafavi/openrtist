@@ -44,13 +44,43 @@ class UI(QtWidgets.QMainWindow, design.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)  # This is defined in design.py file automatically
 
+    def addMeasurementsInfo(self, painter, artist_info, text):
+        painter.setRenderHint(QPainter.Antialiasing)
+
+        # Create the path
+        path = QPainterPath()
+        # Set painter colors to given values.
+        font = QFont("Arial", 10, QFont.Bold)
+        pen = QPen(Qt.red, 1)
+        painter.setPen(pen)
+        brush = QBrush(Qt.black)
+        painter.setBrush(brush)
+        fm = QFontMetrics(font)
+        textWidthInPixels = fm.width(text.partition('\n')[0])
+        textHeightInPixels = fm.height()
+        rect = QRectF(
+            0, artist_info.bottom() + 5, textWidthInPixels + 60, textHeightInPixels + 35
+        )
+
+        # Add the rect to path.
+        path.addRect(rect)
+        painter.setClipPath(path)
+
+        # Fill shape, draw the border and center the text.
+        painter.fillPath(path, painter.brush())
+        painter.strokePath(path, painter.pen())
+        painter.setPen(Qt.white)
+        painter.setFont(font)
+        painter.drawText(rect, Qt.AlignLeft, text)
+
+
     def addArtistInfo(self, painter, thumbnail, text):
         painter.setRenderHint(QPainter.Antialiasing)
 
         # Create the path
         path = QPainterPath()
         # Set painter colors to given values.
-        font = QFont("Arial", 7, QFont.Bold)
+        font = QFont("Arial", 10, QFont.Bold)
         pen = QPen(Qt.red, 1)
         painter.setPen(pen)
         brush = QBrush(Qt.black)
@@ -73,7 +103,9 @@ class UI(QtWidgets.QMainWindow, design.Ui_MainWindow):
         painter.setFont(font)
         painter.drawText(rect, Qt.AlignCenter, text)
 
-    def set_image(self, frame, str_name, style_image):
+        return rect
+
+    def set_image(self, frame, str_name, style_image, measurements):
         img = QImage(
             frame,
             frame.shape[1],
@@ -113,22 +145,34 @@ class UI(QtWidgets.QMainWindow, design.Ui_MainWindow):
         except OSError:
             artist_info = str_name + " (Unknown)"
 
+
         artist_info = artist_info.replace("(", "\n -")
         artist_info = artist_info.replace(")", "")
+
+        # add thumbnail
         pixmap = pixmap.scaledToWidth(256)
         painter = QPainter()
         painter.begin(pix)
         painter.drawPixmap(0, 0, pixmap)
         painter.setPen(Qt.red)
         painter.drawRect(0, 0, pixmap.width(), pixmap.height())
-        self.addArtistInfo(painter, pixmap, artist_info)
+
+        # add artist info
+        artist_info_rect = self.addArtistInfo(painter, pixmap, artist_info)
+
+        # add measurements info
+        measurements_info = f"  Overall FPS: {measurements[0]:.2f}\n  Interval FPS: {measurements[1]:.2f}\n  Interval RTT: {(measurements[2]*1000):.2f} ms"
+        self.addMeasurementsInfo(painter, artist_info_rect, measurements_info)
+
+        # end painter
         painter.end()
+
         self.label_image.setPixmap(pix)
         self.label_image.setScaledContents(True)
 
 
 class ClientThread(QThread):
-    pyqt_signal = pyqtSignal(object, str, object)
+    pyqt_signal = pyqtSignal(object, str, object, list)
 
     def __init__(self, server, video_source=None, capture_device=-1):
         super().__init__()
@@ -140,8 +184,8 @@ class ClientThread(QThread):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
-        def consume_rgb_frame_style(rgb_frame, style, style_image):
-            self.pyqt_signal.emit(rgb_frame, style, style_image)
+        def consume_rgb_frame_style(rgb_frame, style, style_image, measurements):
+            self.pyqt_signal.emit(rgb_frame, style, style_image, measurements)
 
         client = capture_adapter.create_client(
             self._server,

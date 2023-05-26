@@ -15,7 +15,6 @@ packages = [{include = "openrtist", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-gabriel-client = "2.1.1"
 pyqt5 = "5.14.2"
 protobuf = "<=3.18.1"
 sinfonia-tier3 = "^0.7.1"

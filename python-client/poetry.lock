@@ -221,23 +221,6 @@ six = "*"
 termcolor = "*"
 
 [[package]]
-name = "gabriel-client"
-version = "2.1.1"
-description = "Networking components for Gabriel Python clients"
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "gabriel-client-2.1.1.tar.gz", hash = "sha256:50324956053887fdeaa3318ac6f45f91d8bfbe8c4b75efb34d70464cd5424af2"},
-    {file = "gabriel_client-2.1.1-py3-none-any.whl", hash = "sha256:2be76cefcf108419b115eab5d39d86548796c2defe0de1713ce2aacaabc4b07d"},
-]
-
-[package.dependencies]
-gabriel-protocol = "2.0.1"
-opencv-python = ">=3,<5"
-websockets = "9.1"
-
-[[package]]
 name = "gabriel-protocol"
 version = "2.0.1"
 description = "Protocol for Wearable Cognitive Assistance Applications"
@@ -251,6 +234,8 @@ files = [
 
 [package.dependencies]
 protobuf = ">=3.12"
+opencv-python = ">=3,<5"
+websockets = "9.1"
 
 [[package]]
 name = "idna"
