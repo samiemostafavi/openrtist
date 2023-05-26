@@ -95,7 +95,7 @@ def launchUI(server, application_args):
         sys.exit(1)
 
     try:
-        from . import ui
+        from openrtist import ui
 
         ret = ui.main(application_args + [server])
         logging.info("Frontend terminated.")
