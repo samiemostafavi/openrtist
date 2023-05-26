@@ -120,6 +120,11 @@ pip install poetry
 poetry install
 ```
 
+Configure the parameters
+```
+vim ./src/openrtist/config.py
+```
+
 Run the application
 ```
 ./src/openrtist/sinfonia_wrapper.py
