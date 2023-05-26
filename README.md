@@ -296,6 +296,8 @@ __Note:  With OpenVINO using an integrated GPU, it may take up to a minute to pr
 
 With either PyTorch or OpenVINO, you can run the server in CPU-only mode by passing the --cpu CLI flag. By default, OpenRTiST tries to detect and use OpenVINO, and fails over to PyTorch.  To force it to use one system, pass the --openvino or --torch CLI flags.
 
+You can run the server with --timing flag to check the delays.
+
 ### 4.  Run a python or mobile client using source code at python-client or the Android client from the Google Play Store
 
 To run the python client:
