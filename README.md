@@ -298,6 +298,8 @@ With either PyTorch or OpenVINO, you can run the server in CPU-only mode by pass
 
 You can run the server with --timing flag to check the delays.
 
+Pass -p with your desiered port number to bind the server to that specific port.
+
 ### 4.  Run a python or mobile client using source code at python-client or the Android client from the Google Play Store
 
 To run the python client:
