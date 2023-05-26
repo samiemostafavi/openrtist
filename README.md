@@ -280,6 +280,9 @@ OpenRTiST requires Python 3.7. We recommend using a [virtual environment](https:
 To install dependencies for Openrtist, navigate to the server directory, activate a Python 3.7 virtual environment, then run:
 
 ```bash
+cd ~/openrtist/server
+python -m virtualenv --python=python3.7 ./venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -288,7 +291,6 @@ pip install -r requirements.txt
 With your virtual environment activated, start the server like this:
 
 ```bash
-cd <openrtist-repo>/server/
 python main.py
 ```
 
