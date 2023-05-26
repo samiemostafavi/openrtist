@@ -160,7 +160,9 @@ class OpenrtistEngine(cognitive_engine.Engine):
             image = cv2.resize(
                 image, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR
             )
-        image = self._apply_watermark(image)
+        
+        # DISABLED WATERMARK
+        #image = self._apply_watermark(image)
 
         _, jpeg_img = cv2.imencode(".jpg", image, self.compression_params)
         img_data = jpeg_img.tostring()
