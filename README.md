@@ -275,9 +275,9 @@ source /opt/intel/openvino/bin/setupvars.sh
 
 ### 2. Install Openrtist Dependencies
 
-OpenRTiST requires Python 3.5 or later. We recommend using a [virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) to better control the Python environment and keep your distribution defaults clean.  
+OpenRTiST requires Python 3.7. We recommend using a [virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) to better control the Python environment and keep your distribution defaults clean.  
 
-To install dependencies for Openrtist, navigate to the server directory, activate a Python 3 virtual environment, then run:
+To install dependencies for Openrtist, navigate to the server directory, activate a Python 3.7 virtual environment, then run:
 
 ```bash
 pip install -r requirements.txt
