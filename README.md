@@ -286,6 +286,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+NOTE: when installing python3.7, remember that `sudo apt install python3.7-dev` is needed.
+
 ### 3. Run the server
 
 With your virtual environment activated, start the server like this:
