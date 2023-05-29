@@ -32,6 +32,15 @@ The OpenRTiST server can run on CPU alone.  See below on installing from source 
 
 OpenRTiST supports Android and standalone Python clients.  We have tested the Android client on __Nexus 6__, __Samsung Galaxy S7__, and __Essential PH-1__.
 
+## Creating Server Docker Image
+
+```
+cd server
+docker build -t samiemostafavi/openrtist .
+docker image push samiemostafavi/openrtist
+docker run -it --rm -p 9099:9099 samiemostafavi/openrtist
+```
+
 ## Server Installation using Docker
 
 The quickest way to set up an OpenRTiST server is to download and run our pre-built Docker container.  This build supports execution on NVIDIA GPUs, Intel integrated GPUs, and execution on the CPU. All of the following steps must be executed as root. We tested these steps using Docker 19.03.
