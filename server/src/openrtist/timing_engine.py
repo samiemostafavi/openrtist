@@ -30,10 +30,7 @@ class TimingEngine(OpenrtistEngine):
             print("infer {0:.1f} ms, ".format(infer), end="")
             print("post {0:.1f} ms, ".format(post), end="")
             print("system {0:.1f} ms, ".format(system), end="")
-<<<<<<< HEAD:server/src/openrtist/timing_engine.py
 
-=======
->>>>>>> 255f7b4ed10775a5de917ecb6e5e85cb7ccfe5f0:server/timing_engine.py
             print("wait {0:.1f} ms, ".format(wait), end="")
             print("fps {0:.2f}".format(fps))
             print("avg fps: {0:.2f}".format(avg_fps))
