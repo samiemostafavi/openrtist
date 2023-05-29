@@ -23,13 +23,17 @@ class TimingEngine(OpenrtistEngine):
             system = pre + infer + post
 
             wait = (self.t0 - self.lasttime) * 1000
+            system = pre + infer + post
             fps = 1.0 / (self.t3 - self.lasttime)
             avg_fps = (self.count - self.lastcount) / (self.t3 - self.lastprint)
             print("pre {0:.1f} ms, ".format(pre), end="")
             print("infer {0:.1f} ms, ".format(infer), end="")
             print("post {0:.1f} ms, ".format(post), end="")
             print("system {0:.1f} ms, ".format(system), end="")
+<<<<<<< HEAD:server/src/openrtist/timing_engine.py
 
+=======
+>>>>>>> 255f7b4ed10775a5de917ecb6e5e85cb7ccfe5f0:server/timing_engine.py
             print("wait {0:.1f} ms, ".format(wait), end="")
             print("fps {0:.2f}".format(fps))
             print("avg fps: {0:.2f}".format(avg_fps))

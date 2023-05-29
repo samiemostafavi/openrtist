@@ -275,26 +275,34 @@ source /opt/intel/openvino/bin/setupvars.sh
 
 ### 2. Install Openrtist Dependencies
 
-OpenRTiST requires Python 3.5 or later. We recommend using a [virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) to better control the Python environment and keep your distribution defaults clean.  
+OpenRTiST requires Python 3.7. We recommend using a [virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) to better control the Python environment and keep your distribution defaults clean.  
 
-To install dependencies for Openrtist, navigate to the server directory, activate a Python 3 virtual environment, then run:
+To install dependencies for Openrtist, navigate to the server directory, activate a Python 3.7 virtual environment, then run:
 
 ```bash
+cd ~/openrtist/server
+python -m virtualenv --python=python3.7 ./venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+NOTE: when installing python3.7, remember that `sudo apt install python3.7-dev` is needed.
 
 ### 3. Run the server
 
 With your virtual environment activated, start the server like this:
 
 ```bash
-cd <openrtist-repo>/server/
 python main.py
 ```
 
 __Note:  With OpenVINO using an integrated GPU, it may take up to a minute to preload all of the style models.  This is not the case for OpenVINO on CPU, or with PyTorch.  Once initialized, the server is ready for clients at this point.__
 
 With either PyTorch or OpenVINO, you can run the server in CPU-only mode by passing the --cpu CLI flag. By default, OpenRTiST tries to detect and use OpenVINO, and fails over to PyTorch.  To force it to use one system, pass the --openvino or --torch CLI flags.
+
+You can run the server with --timing flag to check the delays.
+
+Pass -p with your desiered port number to bind the server to that specific port.
 
 ### 4.  Run a python or mobile client using source code at python-client or the Android client from the Google Play Store
 
