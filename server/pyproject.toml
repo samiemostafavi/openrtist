@@ -11,12 +11,13 @@ classifiers = [
     "Environment :: X11 Applications",
     "Intended Audience :: End Users/Desktop",
 ]
-packages = [{include = "openrtist", from = "src"}]
+packages = [{include = "openrtist", from = "."}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
 websockets = "8.*"
 gabriel_protocol = "*"
+opencv-python = ">=3, <5"
 protobuf = "3.18.*"
 pillow = "<7"
 torchvision = ">=0.3, <0.5"
@@ -50,7 +51,7 @@ check_untyped_defs = true
 files = ["src"]
 
 [tool.poetry.scripts]
-openrtist = "openrtist.main:main"
+openrtist = "scripts.main:main"
 
 [build-system]
 requires = ["poetry-core"]
