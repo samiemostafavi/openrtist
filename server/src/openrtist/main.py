@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from gabriel_server import local_engine
-from openrtist_engine import OpenrtistEngine
+from gabriel_server.local_engine import LocalEngine
 from timing_engine import TimingEngine
+from openrtist_engine import OpenrtistEngine
 import logging
 import cv2
 import argparse
@@ -123,7 +123,7 @@ def main():
 
         return engine
 
-    local_engine.run(
+    LocalEngine.run(
         engine_setup,
         OpenrtistEngine.SOURCE_NAME,
         INPUT_QUEUE_MAXSIZE,

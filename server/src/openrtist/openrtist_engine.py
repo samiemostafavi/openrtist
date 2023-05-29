@@ -33,7 +33,7 @@
 import cv2
 import numpy as np
 import logging
-from gabriel_server import cognitive_engine
+from gabriel_server.cognitive_engine import CognitiveEngine,Engine
 from gabriel_protocol import gabriel_pb2
 import openrtist_pb2
 import os
@@ -49,7 +49,7 @@ import json
 from emotion_to_style import emotion_to_style_map
 
 
-class OpenrtistEngine(cognitive_engine.Engine):
+class OpenrtistEngine(Engine):
     SOURCE_NAME = "openrtist"
 
     def __init__(self, compression_params, adapter):
@@ -82,9 +82,9 @@ class OpenrtistEngine(cognitive_engine.Engine):
     def handle(self, input_frame):
         if input_frame.payload_type != gabriel_pb2.PayloadType.IMAGE:
             status = gabriel_pb2.ResultWrapper.Status.WRONG_INPUT_FORMAT
-            return cognitive_engine.create_result_wrapper(status)
+            return CognitiveEngine.create_result_wrapper(status)
 
-        extras = cognitive_engine.unpack_extras(openrtist_pb2.Extras, input_frame)
+        extras = CognitiveEngine.unpack_extras(openrtist_pb2.Extras, input_frame)
 
         new_style = False
         send_style_list = False
@@ -160,7 +160,9 @@ class OpenrtistEngine(cognitive_engine.Engine):
             image = cv2.resize(
                 image, (orig_w, orig_h), interpolation=cv2.INTER_LINEAR
             )
-        image = self._apply_watermark(image)
+        
+        # DISABLED WATERMARK
+        #image = self._apply_watermark(image)
 
         _, jpeg_img = cv2.imencode(".jpg", image, self.compression_params)
         img_data = jpeg_img.tostring()
@@ -185,7 +187,7 @@ class OpenrtistEngine(cognitive_engine.Engine):
                 extras.style_list[k] = v
 
         status = gabriel_pb2.ResultWrapper.Status.SUCCESS
-        result_wrapper = cognitive_engine.create_result_wrapper(status)
+        result_wrapper = CognitiveEngine.create_result_wrapper(status)
         result_wrapper.results.append(result)
         result_wrapper.extras.Pack(extras)
 
