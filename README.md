@@ -292,7 +292,8 @@ To install dependencies for Openrtist, navigate to the server directory, activat
 cd ~/openrtist/server
 python -m virtualenv --python=python3.7 ./venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install poetry
+poetry install
 ```
 
 NOTE: when installing python3.7, remember that `sudo apt install python3.7-dev` is needed.
