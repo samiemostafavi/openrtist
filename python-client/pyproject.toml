@@ -18,6 +18,9 @@ python = "^3.8"
 pyqt5 = "5.14.2"
 protobuf = "<=3.18.1"
 sinfonia-tier3 = "^0.7.1"
+websockets = "8.*"
+gabriel_protocol = "*"
+opencv-python = ">=3, <5"
 
 [tool.poetry.group.dev.dependencies]
 black = "^22.10.0"
