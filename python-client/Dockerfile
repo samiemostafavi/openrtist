@@ -17,7 +17,6 @@ RUN apt install git -y
 WORKDIR /app
 
 RUN git clone https://github.com/samiemostafavi/openrtist
-ADD . ./
 WORKDIR /app/openrtist/python-client
 RUN pip install --no-cache-dir poetry
 RUN poetry config virtualenvs.create false
