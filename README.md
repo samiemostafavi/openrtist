@@ -213,6 +213,34 @@ Once the camera is active, the application will be set to 'Clear Display' by def
 
 Once connected to a server, an icon is displayed in the upper right hand corner which allows one to toggle between front- and rear-facing cameras.
 
+### Stream File or Screen
+
+On the client machine, install [v4l2loopback](https://github.com/umlaeute/v4l2loopback/)
+```
+git clone https://github.com/umlaeute/v4l2loopback.git
+cd v4l2loopback
+make && sudo make install
+sudo depmod -a
+sudo rmmod v4l2loopback.ko
+sudo insmod v4l2loopback.ko max_buffers=8
+```
+
+Check if the virtual `/dev/video0` is created:
+```
+$ ls -1 /sys/devices/virtual/video4linux
+video0
+```
+
+Install ffmpeg to stream the screen to that virtual device
+```
+sudo apt install ffmpeg
+```
+
+Cast the screen using the following command
+```
+sudo ffmpeg -f x11grab -framerate 25 -i $DISPLAY -vf format=yuv420p -f v4l2 /dev/video0
+```
+
 ## Installation from source (PyTorch or OpenVINO, GPU or CPU)
 
 ### 1. Install CUDA or OpenVINO
@@ -292,7 +320,8 @@ To install dependencies for Openrtist, navigate to the server directory, activat
 cd ~/openrtist/server
 python -m virtualenv --python=python3.7 ./venv
 source venv/bin/activate
-pip install -r requirements.txt
+pip install poetry
+poetry install
 ```
 
 NOTE: when installing python3.7, remember that `sudo apt install python3.7-dev` is needed.

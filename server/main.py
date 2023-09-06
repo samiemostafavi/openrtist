@@ -39,7 +39,7 @@ def create_adapter(openvino, cpu_only, force_torch, use_myriad):
 
             if torch.cuda.is_available():
                 logger.info("Detected GPU / CUDA support")
-                from torch_adapter import TorchAdapter
+                from openrtist.torch_adapter import TorchAdapter
 
                 return TorchAdapter(False, DEFAULT_STYLE)
             else:
