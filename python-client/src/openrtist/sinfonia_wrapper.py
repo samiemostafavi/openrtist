@@ -20,7 +20,7 @@ import socket
 import sys
 from time import sleep, time
 
-from sinfonia_tier3 import sinfonia_tier3
+#from sinfonia_tier3 import sinfonia_tier3
 
 DEFAULT_TIMEOUT = 10  # timeout in seconds
 TIER1_URL = "https://cmu.findcloudlet.org"

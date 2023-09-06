@@ -85,8 +85,9 @@ class CaptureAdapter:
             video_capture = cv2.VideoCapture(capture_device)
             video_capture.set(cv2.CAP_PROP_FPS, config.CAM_FPS)
         else:
-            video_capture = WebcamVideoStream(src=video_source)
-            video_capture.start()
+            video_capture = cv2.VideoCapture(video_source)
+            video_capture.set(cv2.CAP_PROP_FPS, config.CAM_FPS)
+            print(f"opening video file: {video_source}, FPS: {video_capture.get(cv2.CAP_PROP_FPS)}")
 
         def consume_frame_style(frame, style, style_image, measurements):
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)

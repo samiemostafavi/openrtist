@@ -29,7 +29,11 @@ class OpencvAdapter:
         async def producer():
             _, frame = self._video_capture.read()
             if frame is None:
-                return None
+                self._video_capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                _, frame = self._video_capture.read()
+                if frame is None:
+                    return None
+                
 
             frame = self._preprocess(frame)
             _, jpeg_frame = cv2.imencode('.jpg', frame)

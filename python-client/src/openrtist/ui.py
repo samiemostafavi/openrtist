@@ -20,8 +20,11 @@ import importlib.resources
 import logging
 import sys  # We need sys so that we can pass argv to QApplication
 from pathlib import Path
+from distutils.util import strtobool
+import time
+import json
 
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtCore import QRectF, Qt, QThread, pyqtSignal
 from PyQt5.QtGui import (
     QBrush,
@@ -174,17 +177,34 @@ class UI(QtWidgets.QMainWindow, design.Ui_MainWindow):
 class ClientThread(QThread):
     pyqt_signal = pyqtSignal(object, str, object, list)
 
-    def __init__(self, server, video_source=None, capture_device=-1):
+    def __init__(self, server, video_source=None, capture_device=-1, output=""):
         super().__init__()
         self._server = server
         self._video_source = video_source
         self._capture_device = capture_device
+        self._output_addr = output
+        self._measurements_list = []
+
+    def save_measurements_and_exit(self):
+        if self._output_addr:
+            with open(self._output_addr, 'w') as fout:
+                json.dump(self._measurements_list, fout, indent=4,)
+
+        QtCore.QCoreApplication.quit()
 
     def run(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
 
         def consume_rgb_frame_style(rgb_frame, style, style_image, measurements):
+            if self._output_addr:
+                self._measurements_list.append(
+                    {
+                        "timestamp":time.time_ns(),
+                        "fps":measurements[1],
+                        "rtt":measurements[2],
+                    }
+                )
             self.pyqt_signal.emit(rgb_frame, style, style_image, measurements)
 
         client = capture_adapter.create_client(
@@ -197,7 +217,6 @@ class ClientThread(QThread):
 
     def stop(self):
         self._client.stop()
-
 
 def main(argv=sys.argv):
     logging.basicConfig(level=logging.INFO)
@@ -214,22 +233,45 @@ def main(argv=sys.argv):
         help="video stream (default: try to use USB webcam)",
     )
     parser.add_argument(
+        "--quiet",
+        default=False,
+        type=lambda x: bool(strtobool(x)),
+        help="whether or not show the UI",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        help="output file address to save measurements",
+    )
+    parser.add_argument(
         "-d", "--device", type=int, default=-1, help="Capture device (default: -1)"
+    )
+    parser.add_argument(
+        "-u", "--duration", type=int, default=0, help="client running duration in seconds (default: inf)"
     )
     parser.add_argument("--fullscreen", action="store_true")
     args = parser.parse_args(argv)
 
     app = QtWidgets.QApplication(argv)
     ui = UI()
-    ui.show()
-    if args.fullscreen:
-        ui.showFullScreen()
-        app.setOverrideCursor(QCursor(Qt.BlankCursor))
+    if not args.quiet:
+        ui.show()
+        if args.fullscreen:
+            ui.showFullScreen()
+            app.setOverrideCursor(QCursor(Qt.BlankCursor))
+    else:
+        print(f"No UI (quiet) execution")
 
-    clientThread = ClientThread(args.server, args.video, args.device)
+    clientThread = ClientThread(args.server, args.video, args.device, args.output)
     clientThread.pyqt_signal.connect(ui.set_image)
     clientThread.finished.connect(app.exit)
     clientThread.start()
+
+    if args.duration:
+        print(f"termination after {args.duration} seconds")
+        #QtCore.QTimer.singleShot(args.duration * 1000, QtCore.QCoreApplication.quit)
+        QtCore.QTimer.singleShot(args.duration * 1000, clientThread.save_measurements_and_exit)
 
     return app.exec()  # return Dialog Code
 
