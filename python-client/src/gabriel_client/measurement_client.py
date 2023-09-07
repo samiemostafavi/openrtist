@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class MeasurementClient(WebsocketClient):
-    def __init__(self, host, port, producer_wrappers, consumer, output_freq=10):
+    def __init__(self, host, port, producer_wrappers, consumer, output_freq=1):
         super().__init__(host, port, producer_wrappers, consumer)
 
         self._source_measurements = {}
