@@ -18,6 +18,8 @@ WORKDIR /app
 
 RUN git clone https://github.com/samiemostafavi/openrtist
 WORKDIR /app/openrtist/python-client
+# install upload file to swift dependencies
+RUN pip install keystoneauth1 python-swiftclient
 RUN pip install --no-cache-dir poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install
