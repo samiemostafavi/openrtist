@@ -5,7 +5,7 @@ import logging
 import os # code modified
 
 MAX_TS_ENTRIES = 100000
-TS_RECV_FILE = '/tmp/recv_timestamps_client.txt'
+TS_RECV_FILE = '/tmp/recv_timestamps_client_'
 
 logger = logging.getLogger(__name__)
 
@@ -14,8 +14,7 @@ class MeasurementClient(WebsocketClient):
         super().__init__(host, port, producer_wrappers, consumer, rate)
 
         # code modified
-        self._recv_timestamp_file = open(TS_RECV_FILE, 'w+').close()
-        self._recv_timestamp_file = open(TS_RECV_FILE, 'a')
+        self._recv_timestamp_file = None
         self._recv_timestamp_entries = 0
 
         self._source_measurements = {}
@@ -44,11 +43,17 @@ class MeasurementClient(WebsocketClient):
         # code modified
         if self._recv_timestamp_entries == MAX_TS_ENTRIES:
             # clean the file
-            self._recv_timestamp_file = open(TS_RECV_FILE, 'w').close()
-            self._recv_timestamp_file = open(TS_RECV_FILE, 'a')
+            self._recv_timestamp_file = open(self._recv_tsfile_str, 'w').close()
+            self._recv_timestamp_file = open(self._recv_tsfile_str, 'a')
             self._recv_timestamp_entries = 0
 
-        self._recv_timestamp_file.write(f"{response.frame_id} {time.time_ns()}\n")
+        if self._recv_timestamp_file is None:
+            address_str = f"{self._websocket.local_address[0]}_{self._websocket.local_address[1]}"
+            self._recv_tsfile_str = TS_RECV_FILE+address_str.replace(".", "_").replace(":", "_") + ".txt"
+            self._recv_timestamp_file = open(self._recv_tsfile_str, 'w+').close()
+            self._recv_timestamp_file = open(self._recv_tsfile_str, 'a')
+
+        self._recv_timestamp_file.write(f"{response.frame_id} {time.time_ns()} {self._websocket.local_address}\n")
         self._recv_timestamp_file.flush()
         self._recv_timestamp_entries += 1
 

@@ -11,7 +11,7 @@ import os # code modified
 
 # code modified
 MAX_TS_ENTRIES = 100000
-TS_SENT_FILE = '/tmp/sent_timestamps_client.txt'
+TS_SENT_FILE = '/tmp/sent_timestamps_client_'
 
 URI_FORMAT = 'ws://{host}:{port}'
 
@@ -52,8 +52,6 @@ class WebsocketClient:
         self.producer_wrappers = producer_wrappers
         self.consumer = consumer
 
-        self._sent_timestamp_file =  open(TS_SENT_FILE, "w+").close()  # start with a blank file
-        self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
         self._sent_timestamp_entries = 0
 
         if rate is not None:
@@ -69,6 +67,12 @@ class WebsocketClient:
         except ConnectionRefusedError:
             logger.error('Could not connect to server')
             return
+
+        address_str = f"{self._websocket.local_address[0]}_{self._websocket.local_address[1]}"
+        self._sent_tsfile_str = TS_SENT_FILE+address_str.replace(".", "_").replace(":", "_") + ".txt"
+
+        self._sent_timestamp_file =  open(self._sent_tsfile_str, "w+").close()  # start with a blank file
+        self._sent_timestamp_file = open(self._sent_tsfile_str, 'a')
 
         # We don't waste time checking TCP_NODELAY in production.
         # Note that websocket.transport is an undocumented property.
@@ -163,11 +167,11 @@ class WebsocketClient:
             
             # code modified
             if self._sent_timestamp_entries == MAX_TS_ENTRIES:
-                self._sent_timestamp_file = open(TS_SENT_FILE, 'w').close()
-                self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
+                self._sent_timestamp_file = open(self._sent_tsfile_str, 'w').close()
+                self._sent_timestamp_file = open(self._sent_tsfile_str, 'a')
                 self._sent_timestamp_entries = 0
                 
-            self._sent_timestamp_file.write(f"{source.get_frame_id()} {time.time_ns()}\n")
+            self._sent_timestamp_file.write(f"{source.get_frame_id()} {time.time_ns()} {self._websocket.local_address}\n")
             self._sent_timestamp_file.flush()
             self._sent_timestamp_entries += 1
             # print(f"send a frame at {time.time_ns()}, frame_id: {source.get_frame_id()}")
