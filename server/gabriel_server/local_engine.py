@@ -10,23 +10,19 @@ from gabriel_server.websocket_server import WebsocketServer
 logger = logging.getLogger(__name__)
 
 
-class LocalEngine():
+def run(engine_factory, source_name, input_queue_maxsize, port, num_tokens,
+        message_max_size=None):
+    engine_conn, server_conn = multiprocessing.Pipe()
 
-    @staticmethod
-    def run(engine_factory, source_name, 
-            input_queue_maxsize, port, num_tokens,
-            message_max_size=None):
-        engine_conn, server_conn = multiprocessing.Pipe()
+    local_server = _LocalServer(num_tokens, input_queue_maxsize, server_conn)
+    local_server.add_source_consumed(source_name)
 
-        local_server = _LocalServer(num_tokens, input_queue_maxsize, server_conn)
-        local_server.add_source_consumed(source_name)
+    engine_process = multiprocessing.Process(
+        target=_run_engine, args=(engine_factory, engine_conn))
+    engine_process.start()
+    local_server.launch(port, message_max_size)
 
-        engine_process = multiprocessing.Process(
-            target=_run_engine, args=(engine_factory, engine_conn))
-        engine_process.start()
-        local_server.launch(port, message_max_size)
-
-        raise Exception('Server stopped')
+    raise Exception('Server stopped')
 
 
 class _LocalServer(WebsocketServer):

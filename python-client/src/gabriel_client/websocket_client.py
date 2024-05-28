@@ -1,14 +1,19 @@
 import asyncio
+import time
 import logging
 import socket
 import websockets
 import websockets.client
 from gabriel_protocol import gabriel_pb2
 from collections import namedtuple
+import os # code modified
 
+
+# code modified
+MAX_TS_ENTRIES = 100000
+TS_SENT_FILE = '/tmp/sent_timestamps_client.txt'
 
 URI_FORMAT = 'ws://{host}:{port}'
-
 
 logger = logging.getLogger(__name__)
 websockets_logger = logging.getLogger(websockets.__name__)
@@ -32,7 +37,7 @@ class NoDelayProtocol(websockets.client.WebSocketClientProtocol):
 
 
 class WebsocketClient:
-    def __init__(self, host, port, producer_wrappers, consumer):
+    def __init__(self, host, port, producer_wrappers, consumer, rate=None):
         '''
         producer should take no arguments and return an instance of
         gabriel_pb2.InputFrame.
@@ -46,6 +51,13 @@ class WebsocketClient:
         self._uri = URI_FORMAT.format(host=host, port=port)
         self.producer_wrappers = producer_wrappers
         self.consumer = consumer
+
+        self._sent_timestamp_file =  open(TS_SENT_FILE, "w+").close()  # start with a blank file
+        self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
+        self._sent_timestamp_entries = 0
+
+        if rate is not None:
+            self._rate = rate
 
     def launch(self, message_max_size=None):
         event_loop = asyncio.get_event_loop()
@@ -90,7 +102,7 @@ class WebsocketClient:
                 raw_input = await self._websocket.recv()
             except websockets.exceptions.ConnectionClosed:
                 return  # stop the handler
-            logger.debug('Recieved input from server')
+            logger.debug('Received input from server')
 
             to_client = gabriel_pb2.ToClient()
             to_client.ParseFromString(raw_input)
@@ -138,12 +150,28 @@ class WebsocketClient:
 
         while self._running:
             await source.get_token()
+            
+            # adjust the rate
+            if self._rate is not None:
+                await asyncio.sleep(1.0/self._rate)
 
             input_frame = await producer()
             if input_frame is None:
                 source.return_token()
                 logger.info('Received None from producer')
                 continue
+            
+            # code modified
+            if self._sent_timestamp_entries == MAX_TS_ENTRIES:
+                self._sent_timestamp_file = open(TS_SENT_FILE, 'w').close()
+                self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
+                self._sent_timestamp_entries = 0
+                
+            self._sent_timestamp_file.write(f"{source.get_frame_id()} {time.time_ns()}\n")
+            self._sent_timestamp_file.flush()
+            self._sent_timestamp_entries += 1
+            # print(f"send a frame at {time.time_ns()}, frame_id: {source.get_frame_id()}")
+            # code modified END
 
             from_client = gabriel_pb2.FromClient()
             from_client.frame_id = source.get_frame_id()

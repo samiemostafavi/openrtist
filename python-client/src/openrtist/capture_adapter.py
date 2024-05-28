@@ -114,4 +114,9 @@ def create_client(
         video_source=video_source,
         capture_device=capture_device,
     )
-    return MeasurementClient(host, port, adapter.producer_wrappers, adapter.consumer)
+
+    if video_source is not None:
+        return MeasurementClient(host, port, adapter.producer_wrappers, adapter.consumer, output_freq=1, rate=config.CAM_FPS)
+    else:
+        return MeasurementClient(host, port, adapter.producer_wrappers, adapter.consumer)
+

@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import socket
+import time
 from gabriel_protocol import gabriel_pb2
 from gabriel_protocol.gabriel_pb2 import ResultWrapper
 import websockets
@@ -8,7 +9,12 @@ import websockets.server
 from abc import ABC
 from abc import abstractmethod
 from collections import namedtuple
+import os # code modified
 
+# code modified
+MAX_TS_ENTRIES = 100000
+TS_SENT_FILE = '/tmp/sent_timestamps_server.txt'
+TS_RECV_FILE = '/tmp/recv_timestamps_server.txt'
 
 logger = logging.getLogger(__name__)
 websockets_logger = logging.getLogger(websockets.__name__)
@@ -38,6 +44,14 @@ class WebsocketServer(ABC):
         self._sources_consumed = set()
         self._server = None
         self._start_event = asyncio.Event()
+
+        self._sent_timestamp_file = open(TS_SENT_FILE, "w+").close()
+        self._sent_timestamp_file = open(TS_SENT_FILE, "a")
+        self._sent_timestamp_entries = 0
+
+        self._recv_timestamp_file = open(TS_RECV_FILE, "w+").close()
+        self._recv_timestamp_file = open(TS_RECV_FILE, "a")
+        self._recv_timestamp_entries = 0
 
     @abstractmethod
     async def _send_to_engine(self, from_client, address):
@@ -78,6 +92,18 @@ class WebsocketServer(ABC):
             # Still send so client gets back token
         elif return_token:
             client.tokens_for_source[source_name] += 1
+
+        # code modified
+        if self._sent_timestamp_entries == MAX_TS_ENTRIES:
+            self._sent_timestamp_file = open(TS_SENT_FILE, "w").close()  # start with a blank file
+            self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
+            self._sent_timestamp_entries = 0
+
+        self._sent_timestamp_file.write(f"{address} {frame_id} {time.time_ns()}\n")
+        self._sent_timestamp_file.flush()
+        self._sent_timestamp_entries += 1
+        # print(f"send frame to: {address} at {time.time_ns()}, frame_id: {frame_id}")
+        # code modified END
 
         to_client = gabriel_pb2.ToClient()
         to_client.response.source_name = source_name
@@ -171,6 +197,18 @@ class WebsocketServer(ABC):
 
             status = await self._consumer_helper(client, from_client, address)
             if status == ResultWrapper.Status.SUCCESS:
+
+                # code modified
+                if self._recv_timestamp_entries == MAX_TS_ENTRIES:
+                    self._recv_timestamp_file = open(TS_RECV_FILE, 'w').close()
+                    self._recv_timestamp_file = open(TS_RECV_FILE, 'a')
+                    self._recv_timestamp_entries = 0
+                self._recv_timestamp_file.write(f"{address} {from_client.frame_id} {time.time_ns()}\n")
+                self._recv_timestamp_file.flush()
+                self._recv_timestamp_entries += 1
+                # print(f"got one frame from: {address} at {time.time_ns()}, frame_id: {from_client.frame_id}")
+                # code modified END
+
                 client.tokens_for_source[from_client.source_name] -= 1
                 continue
 

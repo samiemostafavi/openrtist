@@ -1,6 +1,5 @@
 #!/bin/bash
-#args=$*
+args=$*
 source /opt/intel/openvino/bin/setupvars.sh
-#/usr/bin/nvidia-smi -a
-#python3.7 ./main.py $args
-./main.py --timing --cpu
+/usr/bin/nvidia-smi -a
+python3.7 ./main.py $args

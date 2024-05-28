@@ -2,14 +2,21 @@ from gabriel_client.websocket_client import WebsocketClient
 from gabriel_client.websocket_client import ProducerWrapper
 import time
 import logging
+import os # code modified
 
+MAX_TS_ENTRIES = 100000
+TS_RECV_FILE = '/tmp/recv_timestamps_client.txt'
 
 logger = logging.getLogger(__name__)
 
-
 class MeasurementClient(WebsocketClient):
-    def __init__(self, host, port, producer_wrappers, consumer, output_freq=1):
-        super().__init__(host, port, producer_wrappers, consumer)
+    def __init__(self, host, port, producer_wrappers, consumer, output_freq=1, rate=None):
+        super().__init__(host, port, producer_wrappers, consumer, rate)
+
+        # code modified
+        self._recv_timestamp_file = open(TS_RECV_FILE, 'w+').close()
+        self._recv_timestamp_file = open(TS_RECV_FILE, 'a')
+        self._recv_timestamp_entries = 0
 
         self._source_measurements = {}
         self._output_freq = output_freq
@@ -33,6 +40,22 @@ class MeasurementClient(WebsocketClient):
                 source_measurement._interval_fps,
                 source_measurement._avg_rtt,
             ]
+
+        # code modified
+        if self._recv_timestamp_entries == MAX_TS_ENTRIES:
+            # clean the file
+            self._recv_timestamp_file = open(TS_RECV_FILE, 'w').close()
+            self._recv_timestamp_file = open(TS_RECV_FILE, 'a')
+            self._recv_timestamp_entries = 0
+
+        self._recv_timestamp_file.write(f"{response.frame_id} {time.time_ns()}\n")
+        self._recv_timestamp_file.flush()
+        self._recv_timestamp_entries += 1
+
+        # print(f"send a frame at {time.time_ns()}, frame_id: {source.get_frame_id()}")
+        # code modified END
+
+        # print(f"got a response at {time.time_ns()}, frame_id: {response.frame_id}")
         super()._process_response(response,measurements)
 
     async def _send_from_client(self, from_client):

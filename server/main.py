@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-from gabriel_server.local_engine import LocalEngine
-from openrtist.timing_engine import TimingEngine
-from openrtist.openrtist_engine import OpenrtistEngine
+from gabriel_server import local_engine
+from openrtist_engine import OpenrtistEngine
+from timing_engine import TimingEngine
 import logging
 import cv2
 import argparse
 import importlib
 
 DEFAULT_PORT = 9099
-DEFAULT_NUM_TOKENS = 2
+DEFAULT_NUM_TOKENS = 1000 # it was 2
 INPUT_QUEUE_MAXSIZE = 60
 DEFAULT_STYLE = "the_scream"
 COMPRESSION_PARAMS = [cv2.IMWRITE_JPEG_QUALITY, 67]
@@ -39,7 +39,7 @@ def create_adapter(openvino, cpu_only, force_torch, use_myriad):
 
             if torch.cuda.is_available():
                 logger.info("Detected GPU / CUDA support")
-                from openrtist.torch_adapter import TorchAdapter
+                from torch_adapter import TorchAdapter
 
                 return TorchAdapter(False, DEFAULT_STYLE)
             else:
@@ -64,13 +64,13 @@ def create_adapter(openvino, cpu_only, force_torch, use_myriad):
             logger.info("Using OpenVINO")
             logger.info("CPU Only: %s", cpu_only)
             logger.info("Use Myriad: %s", use_myriad)
-            from openrtist.openvino_adapter import OpenvinoAdapter
+            from openvino_adapter import OpenvinoAdapter
 
             adapter = OpenvinoAdapter(cpu_only, DEFAULT_STYLE, use_myriad=use_myriad)
             return adapter
 
     logger.info("Using Torch with CPU")
-    from openrtist.torch_adapter import TorchAdapter
+    from torch_adapter import TorchAdapter
 
     return TorchAdapter(True, DEFAULT_STYLE)
 
@@ -123,7 +123,7 @@ def main():
 
         return engine
 
-    LocalEngine.run(
+    local_engine.run(
         engine_setup,
         OpenrtistEngine.SOURCE_NAME,
         INPUT_QUEUE_MAXSIZE,
