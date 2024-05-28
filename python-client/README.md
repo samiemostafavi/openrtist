@@ -33,3 +33,40 @@ docker image push samiemostafavi/openrtist-client
 ```
 docker run -it --rm -v .:/tmp/ --net=host -e IMG_WIDTH=180 -e IMG_HEIGHT=90 -e SERVER=openrtist-demo.cmusatyalab.org:9099 -e OUTPUT_ADDR=/tmp/test.json -e DURATION=30 samiemostafavi/openrtist-client
 ```
+
+## Timestamping setup
+
+Download the customized OpenRTiST repository that uses a video file and timestamps frames:
+
+```
+git clone https://github.com/samiemostafavi/openrtist.git
+cd openrtist/python-client
+```
+
+Create a Python3.8 virtual enviroment and activate it:
+
+```
+python3.8 -m venv venv
+source venv/bin/activate
+```
+
+Install "poetry" and then use it to install the OpenRTiST client dependencies:
+
+```
+pip install poetry
+poetry install
+```
+
+Set the "QT_QPA_PLATFORM" variable to offscreen to avoid display errors:
+
+```
+export QT_QPA_PLATFORM=offscreen
+```
+
+## timestamping
+Check the files below and set the file addresses to write timestamps
+```
+server/gabriel_server/websocket_server.py
+python_client/src/gabriel_client/websocket_client.py
+python_client/src/gabriel_client/measurement_client.py
+```
