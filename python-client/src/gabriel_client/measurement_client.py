@@ -5,7 +5,7 @@ import logging
 import os # code modified
 
 MAX_TS_ENTRIES = 100000
-TS_RECV_FILE = '/tmp/recv_timestamps_client.txt'
+TS_RECV_FILE = '/tmp/recv_timestamps_client'
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class MeasurementClient(WebsocketClient):
             # address_str = f"{self._websocket.local_address[0]}_{self._websocket.local_address[1]}"
             # self._recv_tsfile_str = TS_RECV_FILE+address_str.replace(".", "_").replace(":", "_") + ".txt"
             # self._recv_timestamp_file = open(self._recv_tsfile_str, 'w+').close()
-            self._recv_tsfile_str = TS_RECV_FILE
+            self._recv_tsfile_str = TS_RECV_FILE + ".txt"
             self._recv_timestamp_file = open(self._recv_tsfile_str, 'a')
 
         self._recv_timestamp_file.write(f"{self._websocket.local_address} {response.frame_id} {time.time_ns()}\n")
