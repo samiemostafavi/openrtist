@@ -11,7 +11,7 @@ import os # code modified
 
 # code modified
 MAX_TS_ENTRIES = 100000
-TS_SENT_FILE = '/tmp/sent_timestamps_client_'
+TS_SENT_FILE = '/tmp/sent_timestamps_client'
 
 URI_FORMAT = 'ws://{host}:{port}'
 
@@ -69,9 +69,10 @@ class WebsocketClient:
             return
 
         address_str = f"{self._websocket.local_address[0]}_{self._websocket.local_address[1]}"
-        self._sent_tsfile_str = TS_SENT_FILE+address_str.replace(".", "_").replace(":", "_") + ".txt"
+        # self._sent_tsfile_str = TS_SENT_FILE+address_str.replace(".", "_").replace(":", "_") + ".txt"
+        self._sent_tsfile_str = TS_SENT_FILE + ".txt"
 
-        self._sent_timestamp_file =  open(self._sent_tsfile_str, "w+").close()  # start with a blank file
+        # self._sent_timestamp_file =  open(self._sent_tsfile_str, "w+").close()  # start with a blank file
         self._sent_timestamp_file = open(self._sent_tsfile_str, 'a')
 
         # We don't waste time checking TCP_NODELAY in production.
@@ -171,7 +172,7 @@ class WebsocketClient:
                 self._sent_timestamp_file = open(self._sent_tsfile_str, 'a')
                 self._sent_timestamp_entries = 0
                 
-            self._sent_timestamp_file.write(f"{source.get_frame_id()} {time.time_ns()} {self._websocket.local_address}\n")
+            self._sent_timestamp_file.write(f"{self._websocket.local_address} {source.get_frame_id()} {time.time_ns()}\n")
             self._sent_timestamp_file.flush()
             self._sent_timestamp_entries += 1
             # print(f"send a frame at {time.time_ns()}, frame_id: {source.get_frame_id()}")
