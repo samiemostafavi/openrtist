@@ -171,8 +171,9 @@ class WebsocketClient:
                 self._sent_timestamp_file = open(self._sent_tsfile_str, 'w').close()
                 self._sent_timestamp_file = open(self._sent_tsfile_str, 'a')
                 self._sent_timestamp_entries = 0
-                
-            self._sent_timestamp_file.write(f"{self._websocket.local_address} {source.get_frame_id()} {time.time_ns()}\n")
+
+            remote_port = self._websocket.remote_address[1]    
+            self._sent_timestamp_file.write(f"{remote_port} {source.get_frame_id()} {time.time_ns()}\n")
             self._sent_timestamp_file.flush()
             self._sent_timestamp_entries += 1
             # print(f"send a frame at {time.time_ns()}, frame_id: {source.get_frame_id()}")
