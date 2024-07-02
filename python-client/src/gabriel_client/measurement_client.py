@@ -54,7 +54,8 @@ class MeasurementClient(WebsocketClient):
             self._recv_tsfile_str = TS_RECV_FILE + ".txt"
             self._recv_timestamp_file = open(self._recv_tsfile_str, 'a')
 
-        self._recv_timestamp_file.write(f"{self._websocket.local_address} {response.frame_id} {time.time_ns()}\n")
+        remote_port = self._websocket.remote_address[1]
+        self._recv_timestamp_file.write(f"{remote_port} {response.frame_id} {time.time_ns()}\n")
         self._recv_timestamp_file.flush()
         self._recv_timestamp_entries += 1
 
