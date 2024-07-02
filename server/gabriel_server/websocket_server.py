@@ -45,13 +45,15 @@ class WebsocketServer(ABC):
         self._server = None
         self._start_event = asyncio.Event()
 
-        self._sent_timestamp_file = open(TS_SENT_FILE, "w+").close()
+        # self._sent_timestamp_file = open(TS_SENT_FILE, "w+").close()
         self._sent_timestamp_file = open(TS_SENT_FILE, "a")
         self._sent_timestamp_entries = 0
 
-        self._recv_timestamp_file = open(TS_RECV_FILE, "w+").close()
+        # self._recv_timestamp_file = open(TS_RECV_FILE, "w+").close()
         self._recv_timestamp_file = open(TS_RECV_FILE, "a")
         self._recv_timestamp_entries = 0
+
+        self._local_port = ""
 
     @abstractmethod
     async def _send_to_engine(self, from_client, address):
@@ -99,7 +101,8 @@ class WebsocketServer(ABC):
             self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
             self._sent_timestamp_entries = 0
 
-        self._sent_timestamp_file.write(f"{address} {frame_id} {time.time_ns()}\n")
+        local_port = self._local_port
+        self._sent_timestamp_file.write(f"{local_port} {frame_id} {time.time_ns()}\n")
         self._sent_timestamp_file.flush()
         self._sent_timestamp_entries += 1
         # print(f"send frame to: {address} at {time.time_ns()}, frame_id: {frame_id}")
@@ -189,6 +192,8 @@ class WebsocketServer(ABC):
 
     async def _consumer(self, websocket, client):
         address = websocket.remote_address
+        local_port = websocket.local_address[1]
+        self._local_port = local_port
         async for raw_input in websocket:
             logger.debug('Received input from %s', address)
 
@@ -203,12 +208,11 @@ class WebsocketServer(ABC):
                     self._recv_timestamp_file = open(TS_RECV_FILE, 'w').close()
                     self._recv_timestamp_file = open(TS_RECV_FILE, 'a')
                     self._recv_timestamp_entries = 0
-                self._recv_timestamp_file.write(f"{address} {from_client.frame_id} {time.time_ns()}\n")
+                self._recv_timestamp_file.write(f"{local_port} {from_client.frame_id} {time.time_ns()}\n")
                 self._recv_timestamp_file.flush()
                 self._recv_timestamp_entries += 1
                 # print(f"got one frame from: {address} at {time.time_ns()}, frame_id: {from_client.frame_id}")
                 # code modified END
-
                 client.tokens_for_source[from_client.source_name] -= 1
                 continue
 
