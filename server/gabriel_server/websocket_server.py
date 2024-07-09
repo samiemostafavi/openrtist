@@ -12,9 +12,9 @@ from collections import namedtuple
 import os # code modified
 
 # code modified
-MAX_TS_ENTRIES = 100000
 TS_SENT_FILE = '/tmp/sent_timestamps_server.txt'
 TS_RECV_FILE = '/tmp/recv_timestamps_server.txt'
+log_period = 10
 
 logger = logging.getLogger(__name__)
 websockets_logger = logging.getLogger(websockets.__name__)
@@ -103,10 +103,11 @@ class WebsocketServer(ABC):
             self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
             self._sent_timestamp_entries = 0
 
-        local_port = self._local_port
-        self._sent_timestamp_file.write(f"{local_port} {frame_id} {time.time_ns()}\n")
-        self._sent_timestamp_file.flush()
-        self._sent_timestamp_entries += 1
+        if int(frame_id) % log_period == 0
+            local_port = self._local_port
+            self._sent_timestamp_file.write(f"{local_port} {frame_id} {time.time_ns()}\n")
+            self._sent_timestamp_file.flush()
+            self._sent_timestamp_entries += 1
         # print(f"send frame to: {address} at {time.time_ns()}, frame_id: {frame_id}")
         # code modified END
 
@@ -206,14 +207,10 @@ class WebsocketServer(ABC):
             if status == ResultWrapper.Status.SUCCESS:
 
                 # code modified
-                if self._recv_timestamp_entries == MAX_TS_ENTRIES:
-                    self._recv_timestamp_file = open(TS_RECV_FILE, 'w').close()
-                    self._recv_timestamp_file = open(TS_RECV_FILE, 'a')
-                    self._recv_timestamp_entries = 0
-                self._recv_timestamp_file.write(f"{local_port} {from_client.frame_id} {time.time_ns()}\n")
-                self._recv_timestamp_file.flush()
-                self._recv_timestamp_entries += 1
-                # print(f"got one frame from: {address} at {time.time_ns()}, frame_id: {from_client.frame_id}")
+                if int(frame_id) % log_period == 0: 
+                    self._recv_timestamp_file.write(f"{local_port} {from_client.frame_id} {time.time_ns()}\n")
+                    self._recv_timestamp_file.flush()
+                    self._recv_timestamp_entries += 1
                 # code modified END
                 client.tokens_for_source[from_client.source_name] -= 1
                 continue

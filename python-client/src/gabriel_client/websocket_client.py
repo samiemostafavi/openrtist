@@ -10,8 +10,8 @@ import os # code modified
 
 
 # code modified
-MAX_TS_ENTRIES = 100000
 TS_SENT_FILE = '/tmp/sent_timestamps_client'
+log_period = 10
 
 URI_FORMAT = 'ws://{host}:{port}'
 
@@ -167,15 +167,11 @@ class WebsocketClient:
                 continue
             
             # code modified
-            if self._sent_timestamp_entries == MAX_TS_ENTRIES:
-                self._sent_timestamp_file = open(self._sent_tsfile_str, 'w').close()
-                self._sent_timestamp_file = open(self._sent_tsfile_str, 'a')
-                self._sent_timestamp_entries = 0
-
-            remote_port = self._websocket.remote_address[1]    
-            self._sent_timestamp_file.write(f"{remote_port} {source.get_frame_id()} {time.time_ns()}\n")
-            self._sent_timestamp_file.flush()
-            self._sent_timestamp_entries += 1
+            remote_port = self._websocket.remote_address[1]
+            if int(source.get_frame_id()) % log_period == 0: 
+                self._sent_timestamp_file.write(f"{remote_port} {source.get_frame_id()} {time.time_ns()}\n")
+                self._sent_timestamp_file.flush()
+                self._sent_timestamp_entries += 1
             # print(f"send a frame at {time.time_ns()}, frame_id: {source.get_frame_id()}")
             # code modified END
 
