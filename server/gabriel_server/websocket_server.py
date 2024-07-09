@@ -98,12 +98,7 @@ class WebsocketServer(ABC):
             client.tokens_for_source[source_name] += 1
 
         # code modified
-        if self._sent_timestamp_entries == MAX_TS_ENTRIES:
-            self._sent_timestamp_file = open(TS_SENT_FILE, "w").close()  # start with a blank file
-            self._sent_timestamp_file = open(TS_SENT_FILE, 'a')
-            self._sent_timestamp_entries = 0
-
-        if int(frame_id) % log_period == 0
+        if int(frame_id) % log_period == 0:
             local_port = self._local_port
             self._sent_timestamp_file.write(f"{local_port} {frame_id} {time.time_ns()}\n")
             self._sent_timestamp_file.flush()
@@ -207,7 +202,7 @@ class WebsocketServer(ABC):
             if status == ResultWrapper.Status.SUCCESS:
 
                 # code modified
-                if int(frame_id) % log_period == 0: 
+                if int(from_client.frame_id) % log_period == 0: 
                     self._recv_timestamp_file.write(f"{local_port} {from_client.frame_id} {time.time_ns()}\n")
                     self._recv_timestamp_file.flush()
                     self._recv_timestamp_entries += 1
