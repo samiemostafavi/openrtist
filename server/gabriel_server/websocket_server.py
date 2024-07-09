@@ -45,11 +45,13 @@ class WebsocketServer(ABC):
         self._server = None
         self._start_event = asyncio.Event()
 
-        # self._sent_timestamp_file = open(TS_SENT_FILE, "w+").close()
+        if not os.path.exists(TS_SENT_FILE):
+            self._sent_timestamp_file = open(TS_SENT_FILE, "w+").close()
         self._sent_timestamp_file = open(TS_SENT_FILE, "a")
         self._sent_timestamp_entries = 0
 
-        # self._recv_timestamp_file = open(TS_RECV_FILE, "w+").close()
+        if not os.path.exists(TS_RECV_FILE):
+            self._sent_timestamp_file = open(TS_RECV_FILE, "w+").close()
         self._recv_timestamp_file = open(TS_RECV_FILE, "a")
         self._recv_timestamp_entries = 0
 
