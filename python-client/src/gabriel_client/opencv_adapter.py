@@ -3,7 +3,7 @@ import numpy as np
 from gabriel_protocol import gabriel_pb2
 from gabriel_client.websocket_client import ProducerWrapper
 import logging
-
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +33,10 @@ class OpencvAdapter:
                 _, frame = self._video_capture.read()
                 if frame is None:
                     return None
-                
 
             frame = self._preprocess(frame)
             _, jpeg_frame = cv2.imencode('.jpg', frame)
-
+            
             input_frame = gabriel_pb2.InputFrame()
             input_frame.payload_type = gabriel_pb2.PayloadType.IMAGE
             input_frame.payloads.append(jpeg_frame.tobytes())
@@ -45,7 +44,7 @@ class OpencvAdapter:
             extras = self._produce_extras()
             if extras is not None:
                 input_frame.extras.Pack(extras)
-
+            
             return input_frame
 
         return [

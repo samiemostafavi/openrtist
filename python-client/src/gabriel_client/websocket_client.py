@@ -154,17 +154,26 @@ class WebsocketClient:
             "No engines consume frames from source: {}".format(source_name))
 
         while self._running:
-            await source.get_token()
-            
-            # adjust the rate
-            if self._rate is not None:
-                await asyncio.sleep(1.0/self._rate)
+            start_ts = time.time()
 
+            await source.get_token()
             input_frame = await producer()
             if input_frame is None:
                 source.return_token()
                 logger.info('Received None from producer')
                 continue
+        
+            from_client = gabriel_pb2.FromClient()
+            from_client.frame_id = source.get_frame_id()
+            from_client.source_name = source_name
+            from_client.input_frame.CopyFrom(input_frame)
+
+            end_ts = time.time()
+            frame_proc_delay = end_ts - start_ts
+            desired_frame_interval = 1.0/self._rate
+            sleep_time = max(desired_frame_interval - frame_proc_delay, 0)
+            if self._rate is not None:
+                await asyncio.sleep(sleep_time)
             
             # code modified
             remote_port = self._websocket.remote_address[1]
@@ -174,11 +183,6 @@ class WebsocketClient:
                 self._sent_timestamp_entries += 1
             # print(f"send a frame at {time.time_ns()}, frame_id: {source.get_frame_id()}")
             # code modified END
-
-            from_client = gabriel_pb2.FromClient()
-            from_client.frame_id = source.get_frame_id()
-            from_client.source_name = source_name
-            from_client.input_frame.CopyFrom(input_frame)
 
             try:
                 await self._send_from_client(from_client)
